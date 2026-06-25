@@ -25,6 +25,14 @@ pm2 delete $PM2_NAME 2>/dev/null || true
 
 export PYTHONPATH="$(pwd)"
 
+# Run under the project venv's Python so PM2 doesn't fall back to system Python
+# (which lacks bittensor / the model deps). Override with INTERPRETER if needed.
+INTERPRETER="${INTERPRETER:-$(pwd)/miner_env/bin/python}"
+if [ ! -x "$INTERPRETER" ]; then
+  echo "Warning: venv python not found at $INTERPRETER; falling back to PM2 default."
+  INTERPRETER=""
+fi
+
 MINER_ARGS=(
   --netuid "$NETUID"
   --wallet.name "$WALLET_NAME"
@@ -41,9 +49,11 @@ else
   MINER_ARGS+=(--blacklist.force_validator_permit)
 fi
 
-pm2 start $MINER_SCRIPT \
-  --name $PM2_NAME -- \
-  "${MINER_ARGS[@]}"
+if [ -n "$INTERPRETER" ]; then
+  pm2 start $MINER_SCRIPT --name $PM2_NAME --interpreter "$INTERPRETER" -- "${MINER_ARGS[@]}"
+else
+  pm2 start $MINER_SCRIPT --name $PM2_NAME -- "${MINER_ARGS[@]}"
+fi
 
 pm2 save
 

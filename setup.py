@@ -59,6 +59,7 @@ setup(
     license="MIT",
     packages=find_packages(),
     include_package_data=True,
+    package_data={"poker44.miner": ["artifacts/*.joblib"]},
     install_requires=requirements,
     python_requires=">=3.10",
     classifiers=[

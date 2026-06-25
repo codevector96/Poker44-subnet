@@ -1,8 +1,17 @@
 pydantic>=2.6
 requests>=2.31
-bittensor
+# Pin to the 9.x SDK: the subnet's vendored config/base code targets the 9.x
+# bittensor API. On 10.x, bt.Config(parser=...) drops custom CLI args and the
+# neuron fails to start. The pinned bittensor-cli==9.20.0 / wallet==4.0.1 are
+# also 9.x-era. Do not bump to 10.x without porting poker44/utils/config.py.
+bittensor>=9,<10
+# bittensor 9.x hard-pins scalecodec==1.2.12 and needs async-substrate-interface
+# with ScaleObj. asi 2.x dropped ScaleObj and pulls cyscale, which clashes with
+# scalecodec. Hold asi in the 1.x line so the stack actually imports.
+async-substrate-interface>=1.6.2,<2
 python-dotenv>=1.0
 numpy>=1.24
 scikit-learn>=1.3
+joblib>=1.3
 pandas>=2.3.3
 wandb>=0.19
